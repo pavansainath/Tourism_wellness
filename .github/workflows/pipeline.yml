@@ -68,7 +68,7 @@ jobs:
         env:
           STREAMLIT_APP_URL: ${{ secrets.STREAMLIT_APP_URL }}
         run: |
-          status=$(curl -s -o /dev/null -w "%{http_code}" "$STREAMLIT_APP_URL")
+          status=$(curl -sL -o /dev/null -w "%{http_code}" "$STREAMLIT_APP_URL")
           echo "App responded with HTTP $status"
           if [ "$status" -ne 200 ]; then
             echo "Streamlit app did not return HTTP 200"
