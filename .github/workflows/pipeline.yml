@@ -68,9 +68,12 @@ jobs:
         env:
           STREAMLIT_APP_URL: ${{ secrets.STREAMLIT_APP_URL }}
         run: |
-          status=$(curl -sL -o /dev/null -w "%{http_code}" "$STREAMLIT_APP_URL")
-          echo "App responded with HTTP $status"
+          status=$(curl -sL --max-redirs 5 --max-time 30 \
+            -A "Mozilla/5.0 (compatible; GitHubActionsHealthCheck)" \
+            -o /dev/null -w "%{http_code}" \
+            "${STREAMLIT_APP_URL%/}/_stcore/health")
+          echo "Health endpoint responded with HTTP $status"
           if [ "$status" -ne 200 ]; then
-            echo "Streamlit app did not return HTTP 200"
+            echo "Streamlit app health check failed"
             exit 1
           fi
