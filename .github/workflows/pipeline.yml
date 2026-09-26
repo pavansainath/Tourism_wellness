@@ -68,10 +68,14 @@ jobs:
         env:
           STREAMLIT_APP_URL: ${{ secrets.STREAMLIT_APP_URL }}
         run: |
+          # Strip any whitespace/newlines and a trailing slash from the secret
+          clean_url=$(printf '%s' "$STREAMLIT_APP_URL" | tr -d '[:space:]')
+          clean_url="${clean_url%/}"
+          echo "Checking: ${clean_url}/_stcore/health"
           status=$(curl -sL --max-redirs 5 --max-time 30 \
             -A "Mozilla/5.0 (compatible; GitHubActionsHealthCheck)" \
             -o /dev/null -w "%{http_code}" \
-            "${STREAMLIT_APP_URL%/}/_stcore/health")
+            "${clean_url}/_stcore/health")
           echo "Health endpoint responded with HTTP $status"
           if [ "$status" -ne 200 ]; then
             echo "Streamlit app health check failed"
